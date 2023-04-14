@@ -556,8 +556,9 @@ TryObjectEvent:
 	ld de, 3
 	ld hl, ObjectEventTypeArray
 	call IsInArray
-	jr nc, .nope
+;	jr nc, .nope ; BUG FIX
 	pop bc
+	jr nc, .nope ; BUG FIX
 
 	inc hl
 	ld a, [hli]

@@ -586,9 +586,11 @@ ReadObjectEvents::
 ; BUG: ReadObjectEvents overflows into wObjectMasks (see docs/bugs_and_glitches.md)
 	ld a, [wCurMapObjectEventCount]
 	ld c, a
-	ld a, NUM_OBJECTS
+;	ld a, NUM_OBJECTS ; BUG FIX
+	ld a, NUM_OBJECTS - 1 ; BUG FIX
 	sub c
 	jr z, .skip
+	jr c, .skip ; BUG FIX
 
 	; could have done "inc hl" instead
 	ld bc, 1

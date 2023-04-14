@@ -317,6 +317,7 @@ ChooseWildEncounter:
 	ld a, b
 	ld [wCurPartyLevel], a
 	ld b, [hl]
+	ld a, b ; BUG FIX
 	call ValidateTempWildMonSpecies
 	jr c, .nowildbattle
 

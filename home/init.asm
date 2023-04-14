@@ -199,7 +199,8 @@ ClearWRAM::
 	pop af
 	inc a
 	cp 8
-	jr nc, .bank_loop
+;	jr nc, .bank_loop ; BUG FIX
+	jr c, .bank_loop ; BUG FIX
 	ret
 
 ClearsScratch::
