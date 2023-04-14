@@ -491,7 +491,8 @@ SlotsAction_PayoutAnim:
 	ld [hl], d
 	ld a, [wSlotsDelay]
 	and $7
-	ret z
+;	ret z ; BUG FIX
+	ret nz ; BUG FIX
 	ld de, SFX_GET_COIN_FROM_SLOTS
 	call PlaySFX
 	ret
