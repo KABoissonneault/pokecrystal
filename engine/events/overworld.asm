@@ -414,7 +414,7 @@ UsedSurfScript:
 	special PlayMapMusic
 ; step into the water (slow_step DIR, step_end)
 	special SurfStartStep
-	applymovement PLAYER, wMovementBuffer
+;	applymovement PLAYER, wMovementBuffer ; BUG FIX
 	end
 
 .stubbed_fn
@@ -1451,7 +1451,12 @@ FishFunction:
 	call GetFacingTileCoord
 	call GetTileCollision
 	cp WATER_TILE
-	jr z, .facingwater
+; BUG FIX
+;	jr z, .facingwater
+	jr nz, .fail
+	farcall CheckFacingObject
+	jr nc, .facingwater
+; BUG FIX END
 .fail
 	ld a, $3
 	ret

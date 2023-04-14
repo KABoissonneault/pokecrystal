@@ -884,18 +884,40 @@ RetrieveBreedmon:
 	dec a
 	ld [wCurPartyMon], a
 	farcall HealPartyMon
-	ld a, [wCurPartyLevel]
-	ld d, a
+; BUG FIX
+;	ld a, [wCurPartyLevel]
+;	ld d, a
+	ld d, MAX_LEVEL
+; BUG FIX END
 	callfar CalcExpAtLevel
 	pop bc
-	ld hl, MON_EXP
+;	ld hl, MON_EXP ; BUG FIX
+	ld hl, MON_EXP + 2 ; BUG FIX
 	add hl, bc
 	ldh a, [hMultiplicand]
-	ld [hli], a
+;	ld [hli], a ; BUG FIX
+	ld b, a ; BUG FIX
 	ldh a, [hMultiplicand + 1]
-	ld [hli], a
+;	ld [hli], a ; BUG FIX
+	ld c, a ; BUG FIX
 	ldh a, [hMultiplicand + 2]
+; BUG FIX
+	ld d, a
+	ld a, [hld]
+	sub d
+	ld a, [hld]
+	sbc c
+	ld a, [hl]
+	sbc b
+	jr c, .not_max_exp
+	ld a, b
+	ld [hli], a
+	ld a, c
+	ld [hli], a
+	ld a, d
+; BUG FIX END
 	ld [hl], a
+.not_max_exp ; BUG FIX
 	and a
 	ret
 
