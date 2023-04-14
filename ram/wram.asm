@@ -433,7 +433,11 @@ wBattleScriptBufferAddress:: dw
 
 wTurnEnded:: db
 
-	ds 1
+
+; BUG FIX: Confusion damage is affected by type-boosting items and Explosion/Self-Destruct doubling
+;	ds 1
+wIsConfusionDamage:: db
+; BUG FIX END
 
 wPlayerStats::
 wPlayerAttack::  dw

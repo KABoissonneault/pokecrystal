@@ -21,6 +21,12 @@ BattleCommand_FrustrationPower:
 	ld b, 4
 	call Divide
 	ldh a, [hQuotient + 3]
+; BUG FIX
+	and a
+	jr nz, .done
+	inc a
+.done
+; BUG FIX END
 	ld d, a
 	pop bc
 	ret

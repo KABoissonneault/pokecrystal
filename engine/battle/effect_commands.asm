@@ -504,7 +504,10 @@ CheckEnemyTurn:
 	call StdBattleTextbox
 
 	call HitSelfInConfusion
-	call BattleCommand_DamageCalc
+; BUG FIX
+;	call BattleCommand_DamageCalc
+	call ConfusionDamageCalc
+; BUG FIX END
 	call BattleCommand_LowerSub
 
 	xor a
@@ -607,7 +610,10 @@ HitConfusion:
 	ld [wCriticalHit], a
 
 	call HitSelfInConfusion
-	call BattleCommand_DamageCalc
+; BUG FIX
+;	call BattleCommand_DamageCalc
+	call ConfusionDamageCalc
+; BUG FIX
 	call BattleCommand_LowerSub
 
 	xor a
@@ -1862,7 +1868,14 @@ BattleCommand_EffectChance:
 	ld hl, wEnemyMoveStruct + MOVE_CHANCE
 .got_move_chance
 ; BUG: Moves with a 100% secondary effect chance will not trigger it in 1/256 uses (see docs/bugs_and_glitches.md)
-	call BattleRandom
+; BUG FIX
+;	call BattleRandom
+	ld a, [hl]
+	sub 100 percent
+	; If chance was 100%, RNG won't be called (carry not set)
+	; Thus chance will be subtracted from 0, guaranteeing a carry
+	call c, BattleRandom
+; BUG FIX END
 	cp [hl]
 	pop hl
 	ret c
@@ -2090,6 +2103,10 @@ BattleCommand_FailureText:
 	jr z, .multihit
 	cp EFFECT_POISON_MULTI_HIT
 	jr z, .multihit
+; BUG FIX
+	cp EFFECT_BEAT_UP
+	jr z, .multihit
+; BUG FIX END
 	jp EndMoveEffect
 
 .multihit
@@ -2506,20 +2523,40 @@ DittoMetalPowder:
 	ret nz
 
 ; BUG: Metal Powder can increase damage taken with boosted (Special) Defense (see docs/bugs_and_glitches.md)
-	ld a, c
-	srl a
-	add c
-	ld c, a
+; BUG FIX
+;	ld a, c
+;	srl a
+;	add c
+;	ld c, a
+;	ret nc
+;
+;	srl b
+;	ld a, b
+;	and a
+;	jr nz, .done
+;	inc b
+;.done
+;	scf
+;	rr c
+	ld h, b
+	ld l, c
+	srl b
+	rr c
+	add hl, bc
+	ld b, h
+	ld c, l
+
+	ld a, HIGH(MAX_STAT_VALUE)
+	cp b
+	jr c, .cap
+	ret nz
+	ld a, LOW(MAX_STAT_VALUE)
+	cp c
 	ret nc
 
-	srl b
-	ld a, b
-	and a
-	jr nz, .done
-	inc b
-.done
-	scf
-	rr c
+.cap
+	ld bc, MAX_STAT_VALUE
+; BUG FIX END
 	ret
 
 BattleCommand_DamageStats:
@@ -2601,12 +2638,18 @@ PlayerAttackDamage:
 	call ThickClubBoost
 
 .done
+	; BUG FIX: Metal Powder can increase damage taken with boosted (Special) Defense
+	push hl
+	call DittoMetalPowder
+	pop hl
+	; BUG FIX END
+
 	call TruncateHL_BC
 
 	ld a, [wBattleMonLevel]
 	ld e, a
-	call DittoMetalPowder
-
+	; call DittoMetalPowder BUG FIX: Metal Powder can increase damage taken with boosted (Special) Defense
+	
 	ld a, 1
 	and a
 	ret
@@ -2643,9 +2686,9 @@ TruncateHL_BC:
 
 .finish
 ; BUG: Reflect and Light Screen can make (Special) Defense wrap around above 1024 (see docs/bugs_and_glitches.md)
-	ld a, [wLinkMode]
-	cp LINK_COLOSSEUM
-	jr z, .done
+;	ld a, [wLinkMode]
+;	cp LINK_COLOSSEUM
+;	jr z, .done
 ; If we go back to the loop point,
 ; it's the same as doing this exact
 ; same check twice.
@@ -2772,6 +2815,19 @@ SpeciesItemBoost:
 ; BUG: Thick Club and Light Ball can make (Special) Attack wrap around above 1024 (see docs/bugs_and_glitches.md)
 	sla l
 	rl h
+
+; BUG FIX	
+	ld a, HIGH(MAX_STAT_VALUE)
+	cp h
+	jr c, .cap
+	ret nz
+	ld a, LOW(MAX_STAT_VALUE)
+	cp l
+	ret nc
+
+.cap
+	ld hl, MAX_STAT_VALUE
+; BUG FIX END
 	ret
 
 EnemyAttackDamage:
@@ -2842,11 +2898,17 @@ EnemyAttackDamage:
 	call ThickClubBoost
 
 .done
+	; BUG FIX: Metal Powder can increase damage taken with boosted (Special) Defense
+	push hl
+	call DittoMetalPowder
+	pop hl
+	; BUG FIX END
+
 	call TruncateHL_BC
 
 	ld a, [wEnemyMonLevel]
 	ld e, a
-	call DittoMetalPowder
+	; call DittoMetalPowder BUG FIX: Metal Powder can increase damage taken with boosted (Special) Defense
 
 	ld a, 1
 	and a
@@ -2895,6 +2957,10 @@ HitSelfInConfusion:
 	ld d, 40
 	pop af
 	ld e, a
+; BUG FIX: Confusion damage is affected by type-boosting items and Explosion/Self-Destruct doubling
+	ld a, TRUE
+	ld [wIsConfusionDamage], a
+; BUG FIX END
 	ret
 
 BattleCommand_DamageCalc:
@@ -2927,6 +2993,13 @@ BattleCommand_DamageCalc:
 	ret z
 
 .skip_zero_damage_check
+; BUG FIX
+	xor a ; Not confusion damage
+	ld [wIsConfusionDamage], a
+	; fallthrough
+
+ConfusionDamageCalc:
+; BUG FIX END
 ; Minimum defense value is 1.
 	ld a, c
 	and a
@@ -2981,6 +3054,12 @@ BattleCommand_DamageCalc:
 	call Divide
 
 ; Item boosts
+; BUG FIX
+; Item boosts don't apply to confusion damage
+	ld a, [wIsConfusionDamage]
+	and a
+	jr nz, .DoneItem
+; BUG FIX END
 	call GetUserItem
 
 	ld a, b
@@ -5264,8 +5343,11 @@ BattleCommand_EndLoop:
 	ld a, BATTLE_VARS_SUBSTATUS3
 	call GetBattleVarAddr
 	res SUBSTATUS_IN_LOOP, [hl]
-	call BattleCommand_BeatUpFailText
-	jp EndMoveEffect
+; BUG FIX
+;	call BattleCommand_BeatUpFailText
+;	jp EndMoveEffect
+	ret
+; BUG FIX END
 
 .not_triple_kick
 	call BattleRandom
@@ -6544,7 +6626,15 @@ INCLUDE "engine/battle/move_effects/future_sight.asm"
 INCLUDE "engine/battle/move_effects/thunder.asm"
 
 CheckHiddenOpponent:
+; BUG FIX
 ; BUG: Lock-On and Mind Reader don't always bypass Fly and Dig (see docs/bugs_and_glitches.md)
+	ld a, BATTLE_VARS_SUBSTATUS5_OPP
+	call GetBattleVar
+	cpl
+	and 1 << SUBSTATUS_LOCK_ON
+	ret z
+; BUG FIX END
+
 	ld a, BATTLE_VARS_SUBSTATUS3_OPP
 	call GetBattleVar
 	and 1 << SUBSTATUS_FLYING | 1 << SUBSTATUS_UNDERGROUND

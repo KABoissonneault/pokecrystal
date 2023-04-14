@@ -294,8 +294,24 @@ HandleBetweenTurnEffects:
 	call LoadTilemapToTempTilemap
 	jp HandleEncore
 
+; BUG FIX: Perish Song and Spikes can leave a Pokémon with 0 HP and not faint
+; CheckFaint_PlayerThenEnemy:
+;; BUG: Perish Song and Spikes can leave a Pokemon with 0 HP and not faint (see docs/bugs_and_glitches.md)
+HasAnyoneFainted:
+	call HasPlayerFainted
+	jp nz, HasEnemyFainted
+	ret
+
 CheckFaint_PlayerThenEnemy:
-; BUG: Perish Song and Spikes can leave a Pokemon with 0 HP and not faint (see docs/bugs_and_glitches.md)
+.faint_loop
+	call .Function
+	ret c
+	call HasAnyoneFainted
+	ret nz
+	jr .faint_loop
+
+.Function:
+; BUG FIX END
 	call HasPlayerFainted
 	jr nz, .PlayerNotFainted
 	call HandlePlayerMonFaint
@@ -319,8 +335,19 @@ CheckFaint_PlayerThenEnemy:
 	scf
 	ret
 
+; BUG FIX: Perish Song and Spikes can leave a Pokémon with 0 HP and not faint
+;CheckFaint_EnemyThenPlayer:
+;; BUG: Perish Song and Spikes can leave a Pokemon with 0 HP and not faint (see docs/bugs_and_glitches.md)
 CheckFaint_EnemyThenPlayer:
-; BUG: Perish Song and Spikes can leave a Pokemon with 0 HP and not faint (see docs/bugs_and_glitches.md)
+.faint_loop
+	call .Function
+	ret c
+	call HasAnyoneFainted
+	ret nz
+	jr .faint_loop
+
+.Function:
+; BUG FIX END
 	call HasEnemyFainted
 	jr nz, .EnemyNotFainted
 	call HandleEnemyMonFaint
@@ -394,6 +421,18 @@ HandleBerserkGene:
 	call GetBattleVarAddr
 	push af
 	set SUBSTATUS_CONFUSED, [hl]
+; BUG FIX
+	ldh a, [hBattleTurn]
+	and a
+	ld hl, wPlayerConfuseCount
+	jr z, .set_confuse_count
+	ld hl, wEnemyConfuseCount
+.set_confuse_count
+	call BattleRandom
+	and %11
+	add 2
+	ld [hl], a
+; BUG FIX END
 	ld a, BATTLE_VARS_MOVE_ANIM
 	call GetBattleVarAddr
 	push hl
@@ -4194,11 +4233,21 @@ PursuitSwitch:
 	ld [wCryTracks], a
 	ld a, [wBattleMonSpecies]
 	call PlayStereoCry
+; BUG FIX
+	ld a, [wCurBattleMon]
+	push af
+; BUG FIX END
 	ld a, [wLastPlayerMon]
-	ld c, a
-	ld hl, wBattleParticipantsNotFainted
-	ld b, RESET_FLAG
-	predef SmallFarFlagAction
+; BUG FIX
+	ld [wCurBattleMon], a
+	call UpdateFaintedPlayerMon
+	pop af
+	ld [wCurBattleMon], a
+;	ld c, a
+;	ld hl, wBattleParticipantsNotFainted
+;	ld b, RESET_FLAG
+;	predef SmallFarFlagAction
+; BUG FIX END
 	call PlayerMonFaintedAnimation
 	ld hl, BattleText_MonFainted
 	jr .done_fainted
@@ -5763,8 +5812,11 @@ CheckPlayerHasUsableMoves:
 	jr .loop
 
 .done
+; BUG FIX
 ; BUG: A Disabled but PP Up–enhanced move may not trigger Struggle (see docs/bugs_and_glitches.md)
-	and a
+;	and a
+	and PP_MASK
+; BUG FIX END
 	ret nz
 
 .force_struggle
@@ -7640,16 +7692,33 @@ SendOutMonText:
 	ld a, [hl]
 	ld [wEnemyHPAtTimeOfPlayerSwitch + 1], a
 	ldh [hMultiplicand + 2], a
-	ld a, 25
-	ldh [hMultiplier], a
-	call Multiply
+; BUG FIX
+;	ld a, 25
+;	ldh [hMultiplier], a
+;	call Multiply
+; BUG FIX END
 	ld hl, wEnemyMonMaxHP
 	ld a, [hli]
 	ld b, [hl]
-	srl a
+; BUG FIX
+;	srl a
+;	rr b
+;	srl a
+;	rr b
+	ld c, 100
+	and a
+	jr z, .shift_done
+.shift
+	rra
 	rr b
-	srl a
-	rr b
+	srl c
+	and a
+	jr nz, .shift
+.shift_done
+	ld a, c
+	ldh [hMultiplier], a
+	call Multiply
+; BUG FIX END
 	ld a, b
 	ld b, 4
 	ldh [hDivisor], a
@@ -7721,16 +7790,33 @@ WithdrawMonText:
 	ld a, [de]
 	sbc b
 	ldh [hMultiplicand + 1], a
-	ld a, 25
-	ldh [hMultiplier], a
-	call Multiply
+; BUG FIX
+;	ld a, 25
+;	ldh [hMultiplier], a
+;	call Multiply
+; BUG FIX END
 	ld hl, wEnemyMonMaxHP
 	ld a, [hli]
 	ld b, [hl]
-	srl a
+; BUG FIX
+;	srl a
+;	rr b
+;	srl a
+;	rr b
+	ld c, 100
+	and a
+	jr z, .shift_done
+.shift
+	rra
 	rr b
-	srl a
-	rr b
+	srl c
+	and a
+	jr nz, .shift
+.shift_done
+	ld a, c
+	ldh [hMultiplier], a
+	call Multiply
+; BUG FIX END
 	ld a, b
 	ld b, 4
 	ldh [hDivisor], a

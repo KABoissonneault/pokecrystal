@@ -1,20 +1,20 @@
 BattleCommand_Present:
 ; BUG: Present damage is incorrect in link battles (see docs/bugs_and_glitches.md)
-	ld a, [wLinkMode]
-	cp LINK_COLOSSEUM
-	jr z, .colosseum_skippush
+;	ld a, [wLinkMode]
+;	cp LINK_COLOSSEUM
+;	jr z, .colosseum_skippush
 	push bc
 	push de
-.colosseum_skippush
+;.colosseum_skippush
 
 	call BattleCommand_Stab
-
-	ld a, [wLinkMode]
-	cp LINK_COLOSSEUM
-	jr z, .colosseum_skippop
+;
+;	ld a, [wLinkMode]
+;	cp LINK_COLOSSEUM
+;	jr z, .colosseum_skippop
 	pop de
 	pop bc
-.colosseum_skippop
+;.colosseum_skippop
 
 	ld a, [wTypeMatchup]
 	and a

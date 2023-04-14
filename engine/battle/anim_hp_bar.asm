@@ -181,10 +181,15 @@ LongAnim_UpdateVariables:
 	ld b, a
 ; BUG: HP bar animation is slow for high HP (see docs/bugs_and_glitches.md)
 	call ComputeHPBarPixels
+; BUG FIX
+	ld a, e
+; BUG FIX END
 	pop bc
 	pop de
 	pop hl
-	ld a, e
+; BUG FIX
+;	ld a, e
+; BUG FIX END
 	ld hl, wCurHPBarPixels
 	cp [hl]
 	jr z, .loop
@@ -377,6 +382,9 @@ ShortHPBar_CalcPixelFrame:
 	ld a, h
 	sbc $0
 	ld h, a
+; BUG FIX
+	jr z, .done
+; BUG FIX END
 	jr c, .done
 	inc b
 	jr .loop
