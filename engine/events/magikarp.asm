@@ -282,7 +282,7 @@ CalcMagikarpLength:
 	ld a, b
 	cp d
 	ret c
-	ret nc
+;	ret nc ; BUG FIX
 	ld a, c
 	cp e
 	ret
