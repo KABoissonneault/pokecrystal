@@ -78,6 +78,10 @@ Credits::
 	push af
 	ld a, $5
 	ldh [hVBlank], a
+; BUG FIX
+	ldh a, [hInMenu]
+	push af
+; BUG FIX END
 	ld a, TRUE
 	ldh [hInMenu], a
 	xor a
@@ -100,6 +104,10 @@ Credits::
 	xor a
 	ldh [hLCDCPointer], a
 	ldh [hBGMapAddress], a
+; BUG FIX
+	pop af
+	ldh [hInMenu], a
+; BUG FIX END
 	pop af
 	ldh [hVBlank], a
 	pop af

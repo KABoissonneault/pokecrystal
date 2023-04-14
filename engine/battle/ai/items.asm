@@ -556,10 +556,12 @@ EnemyUsedFullRestore:
 	call AI_HealStatus
 	ld a, FULL_RESTORE
 	ld [wCurEnemyItem], a
-	ld hl, wEnemySubStatus3
-	res SUBSTATUS_CONFUSED, [hl]
-	xor a
-	ld [wEnemyConfuseCount], a
+; BUG FIX
+;	ld hl, wEnemySubStatus3
+;	res SUBSTATUS_CONFUSED, [hl]
+;	xor a
+;	ld [wEnemyConfuseCount], a
+; BUG FIX END
 	; fallthrough
 
 FullRestoreContinue:
@@ -735,6 +737,15 @@ AI_HealStatus:
 	xor a
 	ld [hl], a
 	ld [wEnemyMonStatus], a
+; BUG FIX
+	ld hl, wEnemySubStatus1
+	res SUBSTATUS_NIGHTMARE, [hl]
+; BUG FIX END
+; BUG FIX
+	ld [wEnemyConfuseCount], a
+	ld hl, wEnemySubStatus3
+	res SUBSTATUS_CONFUSED, [hl]
+; BUG FIX END
 	ld hl, wEnemySubStatus5
 	res SUBSTATUS_TOXIC, [hl]
 	ret

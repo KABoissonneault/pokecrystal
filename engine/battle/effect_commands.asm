@@ -1405,16 +1405,26 @@ BattleCheckTypeMatchup:
 	ld hl, wEnemyMonType1
 	ldh a, [hBattleTurn]
 	and a
-	jr z, CheckTypeMatchup
+; BUG FIX
+;	jr z, CheckTypeMatchup
+	jr z, .get_type
+; BUG FIX END
 	ld hl, wBattleMonType1
+; BUG FIX
+.get_type
+	ld a, BATTLE_VARS_MOVE_TYPE
+	call GetBattleVar ; preserves hl, de, and bc
+; BUG FIX END
 	; fallthrough
 CheckTypeMatchup:
 ; BUG: AI makes a false assumption about CheckTypeMatchup (see docs/bugs_and_glitches.md)
 	push hl
 	push de
 	push bc
-	ld a, BATTLE_VARS_MOVE_TYPE
-	call GetBattleVar
+; BUG FIX
+;	ld a, BATTLE_VARS_MOVE_TYPE
+;	call GetBattleVar
+; BUG FIX END
 	ld d, a
 	ld b, [hl]
 	inc hl

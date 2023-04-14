@@ -1668,7 +1668,10 @@ AI_Smart_Conversion2:
 ; BUG: "Smart" AI discourages Conversion2 after the first turn (see docs/bugs_and_glitches.md)
 	ld a, [wLastPlayerMove]
 	and a
-	jr nz, .discourage
+; BUG FIX
+;	jr nz, .discourage
+	jr z, .discourage
+; BUG FIX END
 
 	push hl
 	dec a
@@ -1746,7 +1749,10 @@ AI_Smart_MeanLook:
 
 ; 80% chance to greatly encourage this move if the enemy is badly poisoned.
 ; BUG: "Smart" AI encourages Mean Look if its own Pokémon is badly poisoned (see docs/bugs_and_glitches.md)
-	ld a, [wEnemySubStatus5]
+; BUG FIX
+;	ld a, [wEnemySubStatus5]
+	ld a, [wPlayerSubStatus5]
+; BUG FIX END
 	bit SUBSTATUS_TOXIC, a
 	jr nz, .encourage
 

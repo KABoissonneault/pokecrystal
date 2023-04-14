@@ -74,7 +74,10 @@ BattleCommand_Teleport:
 	srl b
 	srl b
 	cp b
-	jr nc, .run_away
+; BUG FIX
+;	jr nc, .run_away
+	jr c, .failed
+; BUG FIX END
 
 .run_away
 	call UpdateBattleMonInParty

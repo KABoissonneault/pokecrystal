@@ -6460,6 +6460,7 @@ LoadEnemyMon:
 	call CopyBytes
 
 ; BUG: PRZ and BRN stat reductions don't apply to switched Pokémon (see docs/bugs_and_glitches.md)
+	call ApplyStatusEffectOnEnemyStats ; BUG FIX
 	ret
 
 CheckSleepingTreeMon:
@@ -6854,7 +6855,9 @@ BadgeStatBoosts:
 ; BUG: Glacier Badge may not boost Special Defense depending on the value of Special Attack (see docs/bugs_and_glitches.md)
 	ld a, b
 	srl b
+	push af ; BUG FIX
 	call c, BoostStat
+	pop af ; BUG FIX
 	inc hl
 	inc hl
 ; Check every other badge.

@@ -214,7 +214,11 @@ PokeBallEffect:
 	ld a, [wBattleMode]
 	dec a
 	jp nz, UseBallInTrainerBattle
-
+; BUG FIX
+	ld a, [wBattleType]
+	cp BATTLETYPE_TUTORIAL
+	jr z, .room_in_party
+; BUG FIX END
 	ld a, [wPartyCount]
 	cp PARTY_LENGTH
 	jr nz, .room_in_party
@@ -342,6 +346,9 @@ PokeBallEffect:
 	and 1 << FRZ | SLP_MASK
 	ld c, 10
 	jr nz, .addstatus
+; BUG FIX
+	ld a, [wEnemyMonStatus]
+; BUG FIX END
 	and a
 	ld c, 5
 	jr nz, .addstatus
@@ -357,6 +364,7 @@ PokeBallEffect:
 	ld d, a
 	push de
 	ld a, [wBattleMonItem]
+	ld b, a ; BUG FIX
 	farcall GetItemHeldEffect
 	ld a, b
 	cp HELD_CATCH_CHANCE
@@ -442,16 +450,19 @@ PokeBallEffect:
 
 ; BUG: Catching a Transformed Pokémon always catches a Ditto (see docs/bugs_and_glitches.md)
 	bit SUBSTATUS_TRANSFORMED, a
-	jr nz, .ditto
-	jr .not_ditto
+; BUG FIX
+;	jr nz, .ditto
+;	jr .not_ditto
+	jr nz, .load_data
 
-.ditto
-	ld a, DITTO
-	ld [wTempEnemyMonSpecies], a
-	jr .load_data
+;.ditto
+;	ld a, DITTO
+;	ld [wTempEnemyMonSpecies], a
+;	jr .load_data
 
-.not_ditto
-	set SUBSTATUS_TRANSFORMED, [hl]
+;.not_ditto
+;	set SUBSTATUS_TRANSFORMED, [hl]
+; BUG FIX END
 	ld hl, wEnemyBackupDVs
 	ld a, [wEnemyMonDVs]
 	ld [hli], a
@@ -757,6 +768,7 @@ HeavyBall_GetDexEntryBank:
 	push hl
 	push de
 	ld a, [wEnemyMonSpecies]
+	dec a ; BUG FIX
 	rlca
 	rlca
 	maskbits NUM_DEX_ENTRY_BANKS
@@ -921,7 +933,10 @@ MoonBallMultiplier:
 	push bc
 	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
-	cp MOON_STONE_RED ; BURN_HEAL
+; BUG FIX
+;	cp MOON_STONE_RED ; BURN_HEAL
+	cp MOON_STONE
+; BUG FIX END
 	pop bc
 	ret nz
 
@@ -978,7 +993,10 @@ LoveBallMultiplier:
 	pop de
 	cp d
 	pop bc
-	ret nz
+; BUG FIX
+;	ret nz
+	ret z
+; BUG FIX END
 
 	sla b
 	jr c, .max
@@ -1012,7 +1030,10 @@ FastBallMultiplier:
 	cp -1
 	jr z, .next
 	cp c
-	jr nz, .next
+; BUG FIX
+;	jr nz, .next
+	jr nz, .loop
+; BUG FIX END
 	sla b
 	jr c, .max
 
