@@ -38,7 +38,8 @@ BattleCommand_Counter:
 	ld hl, wCurDamage
 	ld a, [hli]
 	or [hl]
-	ret z
+;	ret z ; Bug fix
+	jr z, .failed ; Bug fix
 
 	ld a, [hl]
 	add a
@@ -55,3 +56,11 @@ BattleCommand_Counter:
 	xor a
 	ld [wAttackMissed], a
 	ret
+
+; Bug fix
+.failed
+	ld a, 1
+	ld [wEffectFailed], a
+	and a
+	ret
+; Bug fix end
