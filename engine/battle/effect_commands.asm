@@ -1249,6 +1249,7 @@ BattleCommand_Stab:
 .go
 	ld a, BATTLE_VARS_MOVE_TYPE
 	call GetBattleVarAddr
+	and TYPE_MASK ; Mod: Phys/Spec split
 	ld [wCurType], a
 
 	push hl
@@ -1296,6 +1297,7 @@ BattleCommand_Stab:
 .SkipStab:
 	ld a, BATTLE_VARS_MOVE_TYPE
 	call GetBattleVar
+	and TYPE_MASK ; Mod: Phys/Spec split
 	ld b, a
 	ld hl, TypeMatchups
 
@@ -1415,6 +1417,7 @@ BattleCheckTypeMatchup:
 	ld a, BATTLE_VARS_MOVE_TYPE
 	call GetBattleVar ; preserves hl, de, and bc
 ; BUG FIX END
+	and TYPE_MASK ; Mod: Phys/Spec split
 	; fallthrough
 CheckTypeMatchup:
 ; BUG: AI makes a false assumption about CheckTypeMatchup (see docs/bugs_and_glitches.md)
@@ -3092,6 +3095,7 @@ ConfusionDamageCalc:
 	ld b, a
 	ld a, BATTLE_VARS_MOVE_TYPE
 	call GetBattleVar
+	and TYPE_MASK ; Mod: Phys/Spec split
 	cp b
 	jr nz, .DoneItem
 
@@ -6013,6 +6017,7 @@ CheckMoveTypeMatchesTarget:
 
 	ld a, BATTLE_VARS_MOVE_TYPE
 	call GetBattleVar
+	and TYPE_MASK ; Mod: Phys/Spec split
 	cp NORMAL
 	jr z, .normal
 

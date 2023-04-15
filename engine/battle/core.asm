@@ -5735,14 +5735,23 @@ MoveInfoBox:
 	ld [wStringBuffer1], a
 	call .PrintPP
 
+; Mod: Phys/Spec split
+	farcall UpdateMoveData
+	ld a, [wPlayerMoveStruct + MOVE_ANIM]
+	ld b, a
+	farcall GetMoveCategoryName	
+; Mod end
 	hlcoord 1, 9
-	ld de, .Type
+;	ld de, .Type ; Mod
+	ld de, wStringBuffer1 ; Mod
 	call PlaceString
 
-	hlcoord 7, 11
+;	hlcoord 7, 11 ; Mod
+	ld h, b ; Mod
+	ld l, c ; Mod
 	ld [hl], "/"
 
-	callfar UpdateMoveData
+;	callfar UpdateMoveData ; Mod
 	ld a, [wPlayerMoveStruct + MOVE_ANIM]
 	ld b, a
 	hlcoord 2, 10
@@ -5753,8 +5762,10 @@ MoveInfoBox:
 
 .Disabled:
 	db "Disabled!@"
-.Type:
-	db "TYPE/@"
+; Mod: Phys/Spec split
+;.Type:
+;	db "TYPE/@"
+; Mod end
 
 .PrintPP:
 	hlcoord 5, 11
