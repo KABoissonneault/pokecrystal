@@ -10,7 +10,8 @@ SaveMenu:
 	call AskOverwriteSaveFile
 	jr c, .refused
 	call PauseGameLogic
-	call _SavingDontTurnOffThePower
+;	call _SavingDontTurnOffThePower ; Mod
+	call SavedTheGame ; Mod
 	call ResumeGameLogic
 	call ExitMenu
 	and a
@@ -46,7 +47,7 @@ ChangeBoxSaveGame:
 	call AskOverwriteSaveFile
 	jr c, .refused
 	call PauseGameLogic
-	call SavingDontTurnOffThePower
+;	call SavingDontTurnOffThePower ; Mod
 	call SaveBox
 	pop de
 	ld a, e
@@ -64,7 +65,8 @@ Link_SaveGame:
 	call AskOverwriteSaveFile
 	jr c, .refused
 	call PauseGameLogic
-	call _SavingDontTurnOffThePower
+;	call _SavingDontTurnOffThePower ; Mod
+	call SavedTheGame ; Mod
 	call ResumeGameLogic
 	and a
 
@@ -109,10 +111,13 @@ MoveMonWOMail_InsertMon_SaveGame:
 	call LoadBox
 	call ResumeGameLogic
 	ld de, SFX_SAVE
-	call PlaySFX
-	ld c, 24
-	call DelayFrames
-	ret
+; Mod
+	jp PlaySFX
+;	call PlaySFX
+;	ld c, 24
+;	call DelayFrames
+;	ret
+; Mod end
 
 StartMoveMonWOMail_SaveGame:
 	ld hl, MoveMonWOMailSaveText
@@ -123,7 +128,8 @@ StartMoveMonWOMail_SaveGame:
 	call AskOverwriteSaveFile
 	jr c, .refused
 	call PauseGameLogic
-	call _SavingDontTurnOffThePower
+;	call _SavingDontTurnOffThePower ; Mod
+	call SavedTheGame ; Mod
 	call ResumeGameLogic
 	and a
 	ret
@@ -174,31 +180,36 @@ AddHallOfFameEntry:
 		"MOBILE_EVENT_OBJECT_GS_BALL is no longer equal to $0b."
 	ret
 
-SaveGameData:
-	call _SaveGameData
-	ret
+; Mod
+;SaveGameData:
+;	call _SaveGameData
+;	ret
+; Mod end
 
 AskOverwriteSaveFile:
 	ld a, [wSaveFileExists]
 	and a
 	jr z, .erase
 	call CompareLoadedAndSavedPlayerID
-	jr z, .yoursavefile
+;	jr z, .yoursavefile ; Mod
+	ret z ; Mod
 	ld hl, AnotherSaveFileText
 	call SaveTheGame_yesorno
 	jr nz, .refused
-	jr .erase
+;	jr .erase ; Mod
 
-.yoursavefile
-	ld hl, AlreadyASaveFileText
-	call SaveTheGame_yesorno
-	jr nz, .refused
-	jr .ok
+; Mod
+;.yoursavefile
+;	ld hl, AlreadyASaveFileText
+;	call SaveTheGame_yesorno
+;	jr nz, .refused
+;	jr .ok
+; Mod end
 
 .erase
 	call ErasePreviousSave
 
-.ok
+;.ok ; Mod
 	and a
 	ret
 
@@ -236,18 +247,29 @@ CompareLoadedAndSavedPlayerID:
 	cp c
 	ret
 
-_SavingDontTurnOffThePower:
-	call SavingDontTurnOffThePower
+;_SavingDontTurnOffThePower: ; Mod
+;	call SavingDontTurnOffThePower ; Mod
 SavedTheGame:
-	call _SaveGameData
+; Mod
+	ld hl, wOptions
+	set NO_TEXT_SCROLL, [hl]
+	push hl
+	ld hl, .saving_text
+	call PrintText
+	pop hl
+	res NO_TEXT_SCROLL, [hl]
+;	call _SaveGameData
+	call SaveGameData
+; Mod end
 	; wait 32 frames
-	ld c, 32
-	call DelayFrames
+;	ld c, 32 ; Mod
+;	call DelayFrames ; Mod
 	; copy the original text speed setting to the stack
 	ld a, [wOptions]
 	push af
 	; set text speed to medium
-	ld a, TEXT_DELAY_MED
+;	ld a, TEXT_DELAY_MED ; Mod
+	ld a, TEXT_DELAY_FAST ; Mod
 	ld [wOptions], a
 	; <PLAYER> saved the game!
 	ld hl, SavedTheGameText
@@ -257,13 +279,22 @@ SavedTheGame:
 	ld [wOptions], a
 	ld de, SFX_SAVE
 	call WaitPlaySFX
-	call WaitSFX
-	; wait 30 frames
-	ld c, 30
-	call DelayFrames
-	ret
+; Mod
+;	call WaitSFX
+	jp WaitSFX 
+;	; wait 30 frames
+;
+;	ld c, 30
+;	call DelayFrames
+;	ret ; Mod
 
-_SaveGameData:
+.saving_text
+	text "SAVING…"
+	done
+
+;_SaveGameData:
+SaveGameData:
+; Mod end 
 	ld a, TRUE
 	ld [wSaveFileExists], a
 	farcall StageRTCTimeForSave
@@ -333,29 +364,31 @@ FindStackTop:
 	inc hl
 	jr .loop
 
-SavingDontTurnOffThePower:
-	; Prevent joypad interrupts
-	xor a
-	ldh [hJoypadReleased], a
-	ldh [hJoypadPressed], a
-	ldh [hJoypadSum], a
-	ldh [hJoypadDown], a
-	; Save the text speed setting to the stack
-	ld a, [wOptions]
-	push af
-	; Set the text speed to medium
-	ld a, TEXT_DELAY_MED
-	ld [wOptions], a
-	; SAVING... DON'T TURN OFF THE POWER.
-	ld hl, SavingDontTurnOffThePowerText
-	call PrintText
-	; Restore the text speed setting
-	pop af
-	ld [wOptions], a
-	; Wait for 16 frames
-	ld c, 16
-	call DelayFrames
-	ret
+; Mod
+;SavingDontTurnOffThePower:
+;	; Prevent joypad interrupts
+;	xor a
+;	ldh [hJoypadReleased], a
+;	ldh [hJoypadPressed], a
+;	ldh [hJoypadSum], a
+;	ldh [hJoypadDown], a
+;	; Save the text speed setting to the stack
+;	ld a, [wOptions]
+;	push af
+;	; Set the text speed to medium
+;	ld a, TEXT_DELAY_MED
+;	ld [wOptions], a
+;	; SAVING... DON'T TURN OFF THE POWER.
+;	ld hl, SavingDontTurnOffThePowerText
+;	call PrintText
+;	; Restore the text speed setting
+;	pop af
+;	ld [wOptions], a
+;	; Wait for 16 frames
+;	ld c, 16
+;	call DelayFrames
+;	ret
+; Mod end
 
 ErasePreviousSave:
 	call EraseBoxes
@@ -1103,17 +1136,21 @@ WouldYouLikeToSaveTheGameText:
 	text_far _WouldYouLikeToSaveTheGameText
 	text_end
 
-SavingDontTurnOffThePowerText:
-	text_far _SavingDontTurnOffThePowerText
-	text_end
+; Mod
+;SavingDontTurnOffThePowerText:
+;	text_far _SavingDontTurnOffThePowerText
+;	text_end
+; Mod end
 
 SavedTheGameText:
 	text_far _SavedTheGameText
 	text_end
 
-AlreadyASaveFileText:
-	text_far _AlreadyASaveFileText
-	text_end
+; Mod
+;AlreadyASaveFileText:
+;	text_far _AlreadyASaveFileText
+;	text_end
+; Mod end
 
 AnotherSaveFileText:
 	text_far _AnotherSaveFileText

@@ -189,21 +189,25 @@ _WouldYouLikeToSaveTheGameText::
 	line "save the game?"
 	done
 
-_SavingDontTurnOffThePowerText::
-	text "SAVING… DON'T TURN"
-	line "OFF THE POWER."
-	done
+; Mod: Remove save delay
+;_SavingDontTurnOffThePowerText::
+;	text "SAVING… DON'T TURN"
+;	line "OFF THE POWER."
+;	done
+; Mod end
 
 _SavedTheGameText::
 	text "<PLAYER> saved"
 	line "the game."
 	done
 
-_AlreadyASaveFileText::
-	text "There is already a"
-	line "save file. Is it"
-	cont "OK to overwrite?"
-	done
+; Mod: Remove save delay
+;_AlreadyASaveFileText::
+;	text "There is already a"
+;	line "save file. Is it"
+;	cont "OK to overwrite?"
+;	done
+; Mod end
 
 _AnotherSaveFileText::
 	text "There is another"
