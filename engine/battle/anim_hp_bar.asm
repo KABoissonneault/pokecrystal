@@ -382,9 +382,6 @@ ShortHPBar_CalcPixelFrame:
 	ld a, h
 	sbc $0
 	ld h, a
-; BUG FIX
-	jr z, .done
-; BUG FIX END
 	jr c, .done
 	inc b
 	jr .loop
