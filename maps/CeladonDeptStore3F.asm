@@ -53,6 +53,10 @@ CeladonDeptStore3FYoungsterText:
 
 	para "should use this TM"
 	line "on…"
+; Mod: Infinite TMs		
+	para "Lucky for me,"
+	line "it's reusable!"
+; Mod end
 	done
 
 CeladonDeptStore3FGameboyKid1Text:

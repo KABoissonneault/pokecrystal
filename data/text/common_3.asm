@@ -479,6 +479,13 @@ _MartHowManyText::
 	text "How many?"
 	done
 
+; Mod	
+AlreadyHaveTMText::
+	text "You already have"
+	line "that TM."
+	done
+; Mod end
+
 _MartFinalPriceText::
 	text_decimal wItemQuantityChange, 1, 2
 	text " @"

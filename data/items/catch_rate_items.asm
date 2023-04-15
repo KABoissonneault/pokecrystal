@@ -14,5 +14,10 @@ TimeCapsule_CatchRateItems:
 	db ITEM_C3, BERRY
 	db ITEM_DC, BERRY
 	db ITEM_FA, BERRY
+; Mod: Infinite TMs
+	db TM_PSYCH_UP, BERRY
+	db TM_ICE_PUNCH, BERRY
+	db TM_DETECT, BERRY
+; Mod end
 	db -1,      BERRY
 	db 0 ; end

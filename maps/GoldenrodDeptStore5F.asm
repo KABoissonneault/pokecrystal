@@ -25,34 +25,37 @@ GoldenrodDeptStore5FCheckIfSundayCallback:
 GoldenrodDeptStore5FClerkScript:
 	faceplayer
 	opentext
-	checkevent EVENT_GOT_TM02_HEADBUTT
-	iftrue .headbutt
-	checkevent EVENT_GOT_TM08_ROCK_SMASH
-	iftrue .onlyrocksmash
-	sjump .neither
-
-.headbutt
-	checkevent EVENT_GOT_TM08_ROCK_SMASH
-	iftrue .both
-	sjump .onlyheadbutt
-
-.neither
-	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_1
-	closetext
-	end
-
-.onlyheadbutt
-	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_2
-	closetext
-	end
-
-.onlyrocksmash
-	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_3
-	closetext
-	end
-
-.both
-	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_4
+; Mod
+;	checkevent EVENT_GOT_TM02_HEADBUTT
+;	iftrue .headbutt
+;	checkevent EVENT_GOT_TM08_ROCK_SMASH
+;	iftrue .onlyrocksmash
+;	sjump .neither
+;
+;.headbutt
+;	checkevent EVENT_GOT_TM08_ROCK_SMASH
+;	iftrue .both
+;	sjump .onlyheadbutt
+;
+;.neither
+;	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_1
+;	closetext
+;	end
+;
+;.onlyheadbutt
+;	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_2
+;	closetext
+;	end
+;
+;.onlyrocksmash
+;	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_3
+;	closetext
+;	end
+;
+;.both
+;	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F_4
+	pokemart MARTTYPE_STANDARD, MART_GOLDENROD_5F
+; Mod end
 	closetext
 	end
 
@@ -73,8 +76,12 @@ GoldenrodDeptStore5FReceptionistScript:
 .VeryHappy:
 	writetext GoldenrodDeptStore5FReceptionistThisMoveShouldBePerfectText
 	promptbutton
+; Mod 
+	checkitem TM_RETURN
+	iftrue .AlreadyGotTM
+; Mod end
 	verbosegiveitem TM_RETURN
-	iffalse .Done
+;	iffalse .Done ; Mod
 	setflag ENGINE_GOLDENROD_DEPT_STORE_TM27_RETURN
 	closetext
 	end
@@ -88,12 +95,24 @@ GoldenrodDeptStore5FReceptionistScript:
 .NotVeryHappy:
 	writetext GoldenrodDeptStore5FReceptionistItLooksEvilHowAboutThisTMText
 	promptbutton
+; Mod 
+	checkitem TM_FRUSTRATION
+	iftrue .AlreadyGotTM
+; Mod end
 	verbosegiveitem TM_FRUSTRATION
-	iffalse .Done
+;	iffalse .Done ; Mod
 	setflag ENGINE_GOLDENROD_DEPT_STORE_TM27_RETURN
 	closetext
 	end
 
+; Mod
+.AlreadyGotTM:
+	writetext GoldenrodDeptStore5FAlreadyGotTMText
+	waitbutton
+	closetext
+	end
+; Mod end
+	
 .EventIsOver:
 	writetext GoldenrodDeptStore5FReceptionistThereAreTMsPerfectForMonText
 	waitbutton
@@ -172,6 +191,13 @@ GoldenrodDeptStore5FReceptionistThereAreTMsPerfectForMonText:
 	para "just perfect for"
 	line "your #MON."
 	done
+
+; Mod
+GoldenrodDeptStore5FAlreadyGotTMText:
+	text "Oh, you already"
+	line "have this TM…"
+	done
+; Mod end
 
 GoldenrodDeptStore5FCarrieMysteryGiftExplanationText:
 	text "MYSTERY GIFT."
