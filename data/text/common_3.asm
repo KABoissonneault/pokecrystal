@@ -921,23 +921,31 @@ _SpaceSpaceColonText:: ; unreferenced
 	done
 
 _PasswordAskResetText::
-	text "Password OK."
-	line "Select CONTINUE &"
-	cont "reset settings."
+; Mod: simplify clock reset
+;	text "Password OK."
+;	line "Select CONTINUE &"
+	text "Select CONTINUE &"
+;	cont "reset settings."
+	line "reset settings."
+; Mod end
 	prompt
 
-_PasswordWrongText::
-	text "Wrong password!"
-	prompt
+; Mod
+;_PasswordWrongText::
+;	text "Wrong password!"
+;	prompt
+; Mod end
 
 _PasswordAskResetClockText::
 	text "Reset the clock?"
 	done
 
-_PasswordAskEnterText::
-	text "Please enter the"
-	line "password."
-	done
+; Mod
+;_PasswordAskEnterText::
+;	text "Please enter the"
+;	line "password."
+;	done
+; Mod end
 
 _ClearAllSaveDataText::
 	text "Clear all save"

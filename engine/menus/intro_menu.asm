@@ -1171,7 +1171,8 @@ TitleScreenMain:
 ; Hold Down + B + Select to initiate the sequence.
 	ldh a, [hClockResetTrigger]
 	cp $34
-	jr z, .check_clock_reset
+;	jr z, .check_clock_reset ; Mod: Simplify clock reset
+	jr z, .reset_clock
 
 	ld a, [hl]
 	and D_DOWN + B_BUTTON + SELECT
@@ -1182,19 +1183,21 @@ TitleScreenMain:
 	ldh [hClockResetTrigger], a
 	jr .check_start
 
+; Mod: Simplify clock reset
 ; Keep Select pressed, and hold Left + Up.
 ; Then let go of Select.
-.check_clock_reset
-	bit SELECT_F, [hl]
-	jr nz, .check_start
-
-	xor a
-	ldh [hClockResetTrigger], a
-
-	ld a, [hl]
-	and D_LEFT + D_UP
-	cp  D_LEFT + D_UP
-	jr z, .reset_clock
+;.check_clock_reset
+;	bit SELECT_F, [hl]
+;	jr nz, .check_start
+;
+;	xor a
+;	ldh [hClockResetTrigger], a
+;
+;	ld a, [hl]
+;	and D_LEFT + D_UP
+;	cp  D_LEFT + D_UP
+;	jr z, .reset_clock
+; Mod end
 
 ; Press Start or A to start the game.
 .check_start
