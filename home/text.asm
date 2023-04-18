@@ -211,9 +211,11 @@ ENDM
 	dict "<NEXT>",    NextLineChar
 	dict "<CR>",      CarriageReturnChar
 	dict "<NULL>",    NullChar
-	dict "<SCROLL>",  _ContTextNoPause
+;	dict "<SCROLL>",  _ContTextNoPause ; Mod: autoprompt
+	dict "<SCROLL>",  _ContTextShortPause ; Mod: autoprompt
 	dict "<_CONT>",   _ContText
 	dict "<PARA>",    Paragraph
+	dict "<ATPRA>",   AutoParagraph ; Mod: autoprompt
 	dict "<MOM>",     PrintMomsName
 	dict "<PLAYER>",  PrintPlayerName
 	dict "<RIVAL>",   PrintRivalName
@@ -232,6 +234,7 @@ ENDM
 	dict "<CONT>",    ContText
 	dict "<……>",      SixDotsChar
 	dict "<DONE>",    DoneText
+	dict "<ATDNE>",   AutoDoneText ; Mod: autoprompt
 	dict "<PROMPT>",  PromptText
 	dict "<PKMN>",    PlacePKMN
 	dict "<POKE>",    PlacePOKE
@@ -499,6 +502,22 @@ Paragraph::
 	hlcoord TEXTBOX_INNERX, TEXTBOX_INNERY
 	pop de
 	jp NextChar
+	
+; Mod: autoprompt
+AutoParagraph::
+	push de
+	call Text_WaitBGMap
+	ld c, 10
+	call WaitButtonDelayFrames
+	hlcoord TEXTBOX_INNERX, TEXTBOX_INNERY
+	lb bc, TEXTBOX_INNERH - 1, TEXTBOX_INNERW
+	call ClearBox
+	ld c, 20
+	call DelayFrames
+	hlcoord TEXTBOX_INNERX, TEXTBOX_INNERY
+	pop de
+	jp NextChar
+; Mod end
 
 _ContText::
 	ld a, [wLinkMode]
@@ -518,11 +537,16 @@ _ContText::
 	call z, UnloadBlinkingCursor
 	; fallthrough
 
-_ContTextNoPause::
+;_ContTextNoPause:: ; Mod: autoprompt
+_ContTextShortPause:: ; Mod: autoprompt
 	push de
 	call TextScroll
 	call TextScroll
 	hlcoord TEXTBOX_INNERX, TEXTBOX_INNERY + 2
+; Mod
+	ld c, 5
+	call WaitButtonDelayFrames
+; Mod end
 	pop de
 	jp NextChar
 
@@ -572,6 +596,14 @@ DoneText::
 
 .stop:
 	text_end
+	
+; Mod: autoprompt
+AutoDoneText::
+	call Text_WaitBGMap
+	ld c, 20
+	call WaitButtonDelayFrames
+	jr DoneText
+; Mod end
 
 NullChar::
 	ld a, "?"

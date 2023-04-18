@@ -35,6 +35,10 @@
 	charmap "<TRAINER>", $5d ; "TRAINER"
 	charmap "<ROCKET>",  $5e ; "ROCKET"
 	charmap "<DEXEND>",  $5f
+; Mod: autoprompt
+	charmap "<ATPRA>",   $60
+	charmap "<ATDNE>",   $61
+; Mod end
 
 ; Actual characters (from gfx/font/font_extra.png)
 

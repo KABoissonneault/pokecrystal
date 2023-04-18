@@ -1105,20 +1105,24 @@ _BuenaOffTheAirText::
 _EnemyWithdrewText::
 	text "<ENEMY>"
 	line "withdrew"
-	cont "@"
+;	cont "@" ; Mod: autoprompt
+	scroll "@" ; Mod
 	text_ram wEnemyMonNickname
 	text "!"
-	prompt
+;	prompt ; Mod
+	autodone ; Mod
 
 _EnemyUsedOnText::
 	text "<ENEMY>"
 	line "used @"
 	text_ram wMonOrItemNameBuffer
 	text_start
-	cont "on @"
+;	cont "on @" ; Mod
+	scroll "on @" ; Mod
 	text_ram wEnemyMonNickname
 	text "!"
-	prompt
+;	prompt ; Mod
+	autodone ; Mod
 
 _ThatCantBeUsedRightNowText:: ; unreferenced
 	text "That can't be used"

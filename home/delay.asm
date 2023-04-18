@@ -18,3 +18,14 @@ DelayFrames::
 	dec c
 	jr nz, DelayFrames
 	ret
+
+; Mod: autoprompt
+WaitButtonDelayFrames::
+	ldh a, [hJoyPressed]
+	and A_BUTTON | B_BUTTON
+	ret nz
+	call DelayFrame
+	dec c
+	jr nz, WaitButtonDelayFrames
+	ret
+; Mod end
